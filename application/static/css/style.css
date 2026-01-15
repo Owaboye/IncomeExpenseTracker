@@ -1,0 +1,133 @@
+/* General Reset & Typography */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Navbar Styling */
+/* .navbar {
+    background: linear-gradient(90deg, #0d6efd, #0a58ca);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #fff !important;
+    letter-spacing: 1px;
+}
+
+.navbar-nav .nav-link {
+    color: #e9ecef !important;
+    margin-left: 1rem;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ffc107 !important;
+} */
+.navbar {
+    background: linear-gradient(90deg, #0d6efd, #0a58ca);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #fff !important;
+}
+.navbar-nav .nav-link {
+    color: #f8f9fa !important;
+    transition: all 0.3s ease;
+}
+.navbar-nav .nav-link:hover {
+    color: #ffc107 !important;
+    transform: translateY(-2px);
+}
+/* Dropdown Menu */
+.dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.dropdown-item:hover {
+    background-color: #f1f1f1;
+    color: #0d6efd;
+}
+
+/* Main Content Area */
+/* main.container-fluid {
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    margin-top: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+} */
+main.container-fluid {
+    padding: 2rem;
+    background-color: #fdfdfd;
+    border-radius: 12px;
+    margin-top: 2rem;
+}
+/* Card */
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.card-title {
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+/* Buttons */
+/* .btn-custom {
+    background-color: #0d6efd;
+    color: #fff;
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-custom:hover {
+    background-color: #0a58ca;
+} */
+
+.btn-custom {
+    background: linear-gradient(90deg, #0d6efd, #0a58ca);
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.6rem 1.4rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+.btn-custom:hover {
+    background: linear-gradient(90deg, #0a58ca, #084298);
+    transform: scale(1.05);
+}
+
+/* Footer (Optional) */
+footer {
+    background-color: #0d6efd;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 3rem;
+    border-top: 3px solid #ffc107;
+}
+
+/* Toogle class */
+.hide{
+    display: none;
+}
+
+.show{
+    display: block;
+}

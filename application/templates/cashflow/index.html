@@ -1,0 +1,141 @@
+{% extends "layout.html" %}
+{% block title %} Index {% endblock title %} 
+{% block content %}
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-12 mx-auto">
+                {% include 'partials/flash-messages.html' %}
+             <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+
+        {% set income = data['Income'] if data and data['Income'] else 0 %}
+        {% set expenses = data['Expenses'] if data and data['Expenses'] else 0 %}
+        {% set balance = income - expenses %}
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center p-3">
+                <h6 class="text-muted">Total Income</h6>
+                <h4 class="text-success">&#8358;{{ "{:,.2f}".format(income) }}</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center p-3">
+                <h6 class="text-muted">Total Expenses</h6>
+                <h4 class="text-danger">&#8358;{{ "{:,.2f}".format(expenses) }}</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center p-3">
+                <h6 class="text-muted">Balance</h6>
+                <h4 class="text-primary">&#8358;{{ "{:,.2f}".format(balance) }}</h4>
+            </div>
+        </div>
+
+    </div>
+
+                <hr>
+             
+                <!-- Table -->
+                 <div class="mt-5">
+                    <div class="card">
+                        <div  class="bg-dark d-flex justify-content-between align-items-center p-3">
+                            <h2>Record</h2>
+                            <small><a class="btn btn-primary btn-sm" href="{{url_for('create_cashflow')}}">Add new record</a></small>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                            {% if entries %}
+                                <table class="table table-dark table-bordered">
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Category</th>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Description</th>
+                                        <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for entry in entries %}
+                                        <tr>
+                                        <th scope="row">{{ loop.index }}</th>
+                                        <th scope="row">{{ entry.created_at }}</th>
+                                        <td>{{entry.type}}</td>
+                                        <td>{{entry.category}}</td>
+                                        <td>&#8358;{{"{:,.2f}".format(entry.amount)}}</td>
+                                        <td>{{entry.description}}</td>
+                                        <td>
+                                            <a class="btn btn-info" href="{{url_for('edit_cashflow', id=entry.id)}}">Edit</a>
+                                            <a class="btn btn-danger" href="{{url_for('delete_cashflow', id=entry.id)}}">Delete</a>
+                                        </td>
+                                        </tr>
+                                        {% endfor %}
+                                        
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p class="lead">No record yet</p>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+        </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('cashChart').getContext('2d');
+    const cashChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Income', 'Expenses'],
+            datasets: [{
+                data: [{{ data['Income'] }}, {{ data['Expenses'] }}],
+                backgroundColor: ['#4CAF50', '#F44336']
+            }]
+        }
+    });
+
+
+    // Income Bar Chart
+    new Chart(document.getElementById('incomeByCatChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for cat, amt in income_by_Category  %}"{{ cat }}", {% endfor %}],
+            datasets: [{data: [{% for cat, amt in income_by_Category %}{{amt}}, {% endfor %}], 
+            backgroundColor: ['#4CAF50','#2196F3','#FFC107','#9C27B0']
+        }]
+        }
+    })
+
+    // Exp Bar Chart
+    new Chart(document.getElementById('expByCatChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for cat, amt in exp_by_Category  %}"{{ cat }}", {% endfor %}],
+            datasets: [{data: [{% for cat, amt in exp_by_Category %}{{amt}}, {% endfor %}], 
+            backgroundColor: ['#4CAF50','#2196F3','#FFC107','#9C27B0']
+        }]
+        }
+    })
+
+    // Monthly Expenses Line Chart
+    new Chart(document.getElementById('monthlyExpensesChart'), {
+        type: 'line',
+        data: {
+            labels: [{% for month, total in monthly_expenses %}"{{ month }}",{% endfor %}],
+            datasets: [{ label: 'Monthly Expenses',
+                         data: [{% for month, total in monthly_expenses %}{{ total }},{% endfor %}],
+                         borderColor: '#FF9800', fill: false }]
+        }
+    });
+
+
+</script>
+
+{% endblock content %}

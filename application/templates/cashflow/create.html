@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+{% block title %} Add new cash flow {% endblock title %} 
+{% block content %}
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card">
+                    <div class="bg-secondary d-flex justify-content-between align-items-center p-3">
+                        <h2>Add new Entry</h2>
+                        <small><a class='btn btn-primary btn-sm' href="{{url_for('get_cashflow')}}">View All</a></small>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="">
+                            {{ form.csrf_token }}
+                             <div class="form-group mb-3 ">
+                            
+                                {{ form.amount.label(class="form-label") }} 
+                                {{ form.amount(class="form-control") }}
+                                {% if form.amount.errors %}
+                                    <p class="text-danger">
+                                    {% for error in form.amount.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                           <div class="row">
+                            
+                            <div class="form-group mb-3 col-md-6">
+                            
+                                {{ form.type.label(class="form-label") }} 
+                                {{ form.type(class="form-select", id="cashType") }}
+                                {% if form.type.errors %}
+                                    <p class="text-danger">
+                                    {% for error in form.type.errors %}
+                                       {{ error }}
+                                    {% endfor %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                            <div class="form-group mb-3 hide col-md-6">
+                            
+                                {{ form.expense_category.label(class="form-label") }} 
+                                {{ form.expense_category(class="form-control ", id="expCat") }}
+                                {% if form.expense_category.errors %}
+                                    <small class="text-danger">
+                                    {% for error in form.expense_category.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                    </small>
+                                {% endif %}
+                            </div>
+                            <div class="form-group mb-3 col-md-6">
+                            
+                                {{ form.income_source.label(class="form-label") }} 
+                                {{ form.income_source(class="form-control", id="incCat") }}
+                                {% if form.income_source.errors %}
+                                    <small class="text-danger">
+                                    {% for error in form.income_source.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                    </small>
+                                {% endif %}
+                            </div>
+                           </div>
+                            <div class="form-group mb-3">
+                            
+                                {{ form.description.label(class="form-label") }} 
+                                {{ form.description(class="form-control") }}
+                                {% if form.description.errors %}
+                                    <p class="text-danger">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                            <input class='btn btn-primary' type="submit" value="Add Item">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    const expCat = document.getElementById('expCat');
+    const incCat = document.getElementById('incCat');
+    const cashType = document.getElementById('cashType');
+
+    const expCatParent = expCat.parentElement;
+    const incCatParent = incCat.parentElement;
+
+    // helper function to update visibility
+    function updateCategoryVisibility() {
+        if (cashType.value === 'Income') {
+            incCatParent.classList.remove('hide');
+            expCatParent.classList.add('hide');
+        } else {
+            expCatParent.classList.remove('hide');
+            incCatParent.classList.add('hide');
+        }
+    }
+
+    // run once on page load
+    updateCategoryVisibility();
+
+    // run whenever type changes
+    cashType.addEventListener('change', updateCategoryVisibility);
+</script>
+
+
+{% endblock content %}

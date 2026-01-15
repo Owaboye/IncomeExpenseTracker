@@ -1,0 +1,184 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="content-wrapper p-3">
+
+{% set income = data['Income'] if data and data['Income'] else 0 %}
+{% set expenses = data['Expenses'] if data and data['Expenses'] else 0 %}
+{% set balance = income - expenses %}
+
+<!-- SUMMARY BOXES -->
+<div class="row">
+  <div class="col-md-4">
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h4>&#8358;{{"{:,.2f}".format(income)}}</h4>
+        <p>Total Income</p>
+      </div>
+      <div class="icon"><i class="fas fa-arrow-up"></i></div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="small-box bg-danger">
+      <div class="inner">
+        <h4>&#8358;{{"{:,.2f}".format(expenses)}}</h4>
+        <p>Total Expenses</p>
+      </div>
+      <div class="icon"><i class="fas fa-arrow-down"></i></div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h4>&#8358;{{"{:,.2f}".format(balance)}}</h4>
+        <p>Balance</p>
+      </div>
+      <div class="icon"><i class="fas fa-wallet"></i></div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER -->
+<div class="card">
+<div class="card-header"><b><i class="fas fa-filter"></i> Filter by Date</b></div>
+<div class="card-body row">
+  <div class="col-md-4"><input type="date" id="startDate" class="form-control"></div>
+  <div class="col-md-4"><input type="date" id="endDate" class="form-control"></div>
+  <div class="col-md-4">
+    <button class="btn btn-primary w-100"><i class="fas fa-search"></i> Apply</button>
+  </div>
+</div>
+</div>
+
+<!-- CHARTS -->
+<div class="row">
+<div class="col-md-6">
+<div class="card">
+<div class="card-header">Income vs Expenses</div>
+<div class="card-body"><canvas id="pieChart"></canvas></div>
+</div>
+</div>
+
+<div class="col-md-6">
+<div class="card">
+<div class="card-header">Monthly Expenses</div>
+<div class="card-body"><canvas id="lineChart"></canvas></div>
+</div>
+</div>
+</div>
+
+<!-- CRUD TABLE -->
+<div class="card mt-3">
+<div class="card-header">
+<b><i class="fas fa-table"></i> Records</b>
+
+<div class="float-right">
+<button class="btn btn-success btn-sm" onclick="exportExcel()">
+<i class="fas fa-file-excel"></i> Excel
+</button>
+<button class="btn btn-danger btn-sm" onclick="exportPDF()">
+<i class="fas fa-file-pdf"></i> PDF
+</button>
+</div>
+</div>
+
+<div class="card-body table-responsive">
+<table id="recordTable" class="table table-bordered table-striped">
+<thead>
+<tr>
+<th>#</th>
+<th>Type</th>
+<th>Category</th>
+<th>Amount</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+
+{% if records %}
+{% for r in records %}
+<tr>
+<td>{{loop.index}}</td>
+<td>{{r.type}}</td>
+<td>{{r.category}}</td>
+<td>&#8358;{{"{:,.2f}".format(r.amount)}}</td>
+<td>{{r.date}}</td>
+<td>
+<a href="/view/{{r.id}}" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></a>
+<a href="/edit/{{r.id}}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+<a href="/delete/{{r.id}}" class="btn btn-danger btn-sm"
+onclick="return confirm('Delete this record?')">
+<i class="fas fa-trash"></i></a>
+</td>
+</tr>
+{% endfor %}
+{% else %}
+<tr><td colspan="6" class="text-center text-muted">No records found</td></tr>
+{% endif %}
+
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+{% block scripts %}
+<script>
+    $(function(){
+    $('#recordTable').DataTable();
+    })
+
+    // Animated Pie Chart
+    new Chart(document.getElementById("pieChart"),{
+    type:'pie',
+    data:{
+    labels:['Income','Expenses'],
+    datasets:[{data:[{{income}},{{expenses}}],
+    backgroundColor:['#28a745','#dc3545']}]
+    },
+    options:{
+    animation:{animateScale:true}
+    }
+    })
+
+    // Animated Line Chart
+    {% if monthly_expenses %}
+    new Chart(document.getElementById("lineChart"),{
+    type:'line',
+    data:{
+    labels:[{% for m,t in monthly_expenses %}"{{m}}",{% endfor %}],
+    datasets:[{
+    label:'Expenses',
+    data:[{% for m,t in monthly_expenses %}{{t}},{% endfor %}],
+    borderColor:'#ff9800',
+    tension:0.4
+    }]
+    },
+    options:{animation:{duration:1500}}
+    })
+    {% endif %}
+
+    // Export Excel
+    function exportExcel(){
+    let table=document.getElementById("recordTable");
+    let wb=XLSX.utils.table_to_book(table,{sheet:"Records"});
+    XLSX.writeFile(wb,"records.xlsx");
+    }
+
+    // Export PDF
+    function exportPDF(){
+    const {jsPDF}=window.jspdf;
+    let doc=new jsPDF();
+    doc.text("Financial Records",10,10);
+    doc.autoTable({html:'#recordTable'});
+    doc.save("records.pdf");
+    }
+</script>
+{% endblock %}
+{% endblock %}
+

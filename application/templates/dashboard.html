@@ -1,0 +1,260 @@
+{% extends "layout.html" %}
+{% block title %} Dashboard {% endblock title %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+
+        {% set income = data['Income'] if data and data['Income'] else 0 %}
+        {% set expenses = data['Expenses'] if data and data['Expenses'] else 0 %}
+        {% set balance = income - expenses %}
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center p-3">
+                <h6 class="text-muted">Total Income</h6>
+                <h4 class="text-success">&#8358;{{ "{:,.2f}".format(income) }}</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center p-3">
+                <h6 class="text-muted">Total Expenses</h6>
+                <h4 class="text-danger">&#8358;{{ "{:,.2f}".format(expenses) }}</h4>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center p-3">
+                <h6 class="text-muted">Balance</h6>
+                <h4 class="text-primary">&#8358;{{ "{:,.2f}".format(balance) }}</h4>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header fw-bold">Income vs Expenses</div>
+                <div class="card-body">
+                    <canvas id="cashChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+       {# <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-header fw-bold">Monthly Expenses</div>
+                <div class="card-body">
+                    <canvas id="monthlyExpensesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        #}
+
+        <!-- Monthly Expenses Table -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header fw-bold">Monthly Expenses Table</div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if monthly_expenses %}
+                            {% for month, total in monthly_expenses %}
+                            <tr>
+                                <td>{{ month }}</td>
+                                <td>&#8358;{{ "{:,.2f}".format(total) }}</td>
+                                <td><a class="btn btn-sm btn-info" href="{{ url_for('monthly_expenses_items', month=month) }}">View</a></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="2" class="text-center text-muted">No monthly expense record</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Income Table -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header fw-bold">Monthly Income Table</div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Total</th>
+                                <th>View Detail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if monthly_income %}
+                            {% for month, total in monthly_income %}
+                            <tr>
+                                <td>{{ month }}</td>
+                                <td>&#8358;{{ "{:,.2f}".format(total) }}</td>
+                                <td><a class="btn btn-sm btn-info" href="{{ url_for('monthly_income_items', month=month) }}">View</a></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="2" class="text-center text-muted">No monthly income record</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Income By Category -->
+    <div class="row g-4 mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header fw-bold">Income by Category</div>
+                <div class="card-body">
+                    <canvas id="incomeByCatChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header fw-bold">Income Table</div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead><tr><th>Category</th><th>Amount</th></tr></thead>
+                        <tbody>
+                        {% if income_by_Category %}
+                            {% for cat, amount in income_by_Category %}
+                            <tr>
+                                <td>{{ cat }}</td>
+                                <td>&#8358;{{ "{:,.2f}".format(amount) }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="2" class="text-center text-muted">No income category record</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expenses By Category -->
+    <div class="row g-4 mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header fw-bold">Expenses by Category</div>
+                <div class="card-body">
+                    <canvas id="expByCatChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header fw-bold">Expenses Table</div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead><tr><th>Category</th><th>Amount</th></tr></thead>
+                        <tbody>
+                        {% if exp_by_Category %}
+                            {% for cat, amount in exp_by_Category %}
+                            <tr>
+                                <td>{{ cat }}</td>
+                                <td>&#8358;{{ "{:,.2f}".format(amount) }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="2" class="text-center text-muted">No expense category record</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const income = {{ income }};
+const expenses = {{ expenses }};
+
+// Pie Chart
+if(income || expenses){
+new Chart(document.getElementById('cashChart'), {
+    type:'pie',
+    data:{
+        labels:['Income','Expenses'],
+        datasets:[{
+            data:[income, expenses],
+            backgroundColor:['#28a745','#dc3545']
+        }]
+    }
+});
+}
+
+// Monthly Expenses Chart
+{% if monthly_expenses %}
+new Chart(document.getElementById('monthlyExpensesChart'), {
+    type:'line',
+    data:{
+        labels:[{% for m,t in monthly_expenses %}"{{m}}",{% endfor %}],
+        datasets:[{
+            label:'Monthly Expenses',
+            data:[{% for m,t in monthly_expenses %}{{t}},{% endfor %}],
+            borderColor:'#fd7e14',
+            fill:false
+        }]
+    }
+});
+{% endif %}
+
+// Income Category Chart
+{% if income_by_Category %}
+new Chart(document.getElementById('incomeByCatChart'), {
+    type:'bar',
+    data:{
+        labels:[{% for c,a in income_by_Category %}"{{c}}",{% endfor %}],
+        datasets:[{
+            data:[{% for c,a in income_by_Category %}{{a}},{% endfor %}],
+            backgroundColor:'#0d6efd'
+        }]
+    }
+});
+{% endif %}
+
+// Expense Category Chart
+{% if exp_by_Category %}
+new Chart(document.getElementById('expByCatChart'), {
+    type:'bar',
+    data:{
+        labels:[{% for c,a in exp_by_Category %}"{{c}}",{% endfor %}],
+        datasets:[{
+            data:[{% for c,a in exp_by_Category %}{{a}},{% endfor %}],
+            backgroundColor:'#dc3545'
+        }]
+    }
+});
+{% endif %}
+</script>
+
+{% endblock content %}
