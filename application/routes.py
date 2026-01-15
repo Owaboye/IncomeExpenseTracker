@@ -4,58 +4,107 @@ from application.forms import IncomeExpForm, SignUpForm, LoginForm, ForgotPasswo
 from application.models import IncomeExpTracker, User, Profile
 from werkzeug.security import generate_password_hash, check_password_hash
 
-routes_bp = Blueprint("routes", __name__)
+routes_bp = Blueprint("routes", __name__, url_prefix='/')
 
 
 # ---------------- DASHBOARD ----------------
+# @routes_bp.route('/')
+# @login_required
+# def dashboard():
+
+#     user_id = session["user_id"]
+#     role = session["role"]
+
+#     query = IncomeExpTracker.query
+#     if role != "admin":
+#         query = query.filter_by(user_id=user_id)
+
+#     inc_total = query.filter_by(type="Income") \
+#                      .with_entities(db.func.sum(IncomeExpTracker.amount)) \
+#                      .scalar() or 0
+
+#     cash_cat = query.with_entities(
+#         IncomeExpTracker.type,
+#         db.func.sum(IncomeExpTracker.amount)
+#     ).group_by(IncomeExpTracker.type).all()
+
+#     data = {row[0]: float(row[1]) for row in cash_cat}
+
+#     income_by_category = query.filter_by(type="Income") \
+#         .with_entities(IncomeExpTracker.category, db.func.sum(IncomeExpTracker.amount)) \
+#         .group_by(IncomeExpTracker.category).all()
+
+#     exp_by_category = query.filter_by(type="Expenses") \
+#         .with_entities(IncomeExpTracker.category, db.func.sum(IncomeExpTracker.amount)) \
+#         .group_by(IncomeExpTracker.category).all()
+
+#     monthly_income = query.filter_by(type="Income") \
+#         .with_entities(db.func.strftime('%Y-%m', IncomeExpTracker.created_at).label('month'),
+#                        db.func.sum(IncomeExpTracker.amount)) \
+#         .group_by('month').all()
+
+#     monthly_expenses = query.filter_by(type="Expenses") \
+#         .with_entities(db.func.strftime('%Y-%m', IncomeExpTracker.created_at).label('month'),
+#                        db.func.sum(IncomeExpTracker.amount)) \
+#         .group_by('month').all()
+
+#     return render_template("dashboard.html",
+#         inc_total=inc_total,
+#         data=data,
+#         income_by_Category=income_by_category,
+#         exp_by_Category=exp_by_category,
+#         monthly_income=monthly_income,
+#         monthly_expenses=monthly_expenses
+#     )
+
 @routes_bp.route('/')
 @login_required
 def dashboard():
-
-    user_id = session["user_id"]
-    role = session["role"]
-
-    query = IncomeExpTracker.query
-    if role != "admin":
-        query = query.filter_by(user_id=user_id)
-
-    inc_total = query.filter_by(type="Income") \
-                     .with_entities(db.func.sum(IncomeExpTracker.amount)) \
-                     .scalar() or 0
-
-    cash_cat = query.with_entities(
-        IncomeExpTracker.type,
+    
+    inc_total = db.session.query(
         db.func.sum(IncomeExpTracker.amount)
-    ).group_by(IncomeExpTracker.type).all()
+    ).filter(IncomeExpTracker.type == 'Income',
+             IncomeExpTracker.user_id == session["user_id"]).scalar()
+    
+    cash_cat = db.session.query(
+    IncomeExpTracker.type,
+    db.func.sum(IncomeExpTracker.amount).label("Amount")
+    ).filter(IncomeExpTracker.user_id == session["user_id"]).group_by(IncomeExpTracker.type).all()
 
     data = {row[0]: float(row[1]) for row in cash_cat}
 
-    income_by_category = query.filter_by(type="Income") \
-        .with_entities(IncomeExpTracker.category, db.func.sum(IncomeExpTracker.amount)) \
-        .group_by(IncomeExpTracker.category).all()
+    # Income by Category
+    income_by_Category = db.session.query(
+        IncomeExpTracker.category,
+        db.func.sum(IncomeExpTracker.amount).label("Amount")
+    ).filter(IncomeExpTracker.type == 'Income', 
+             IncomeExpTracker.user_id == session["user_id"]).group_by(IncomeExpTracker.category).all()
 
-    exp_by_category = query.filter_by(type="Expenses") \
-        .with_entities(IncomeExpTracker.category, db.func.sum(IncomeExpTracker.amount)) \
-        .group_by(IncomeExpTracker.category).all()
+    # Expenses by Category
+    exp_by_Category = db.session.query(
+        IncomeExpTracker.category,
+        db.func.sum(IncomeExpTracker.amount).label("Amount")
+    ).filter(IncomeExpTracker.type == 'Expenses', IncomeExpTracker.user_id == session["user_id"]).group_by(IncomeExpTracker.category).all()
 
-    monthly_income = query.filter_by(type="Income") \
-        .with_entities(db.func.strftime('%Y-%m', IncomeExpTracker.created_at),
-                       db.func.sum(IncomeExpTracker.amount)) \
-        .group_by(1).all()
+    monthly_expenses = db.session.query(
+        db.func.strftime('%Y-%m', IncomeExpTracker.created_at).label("month"),
+        db.func.sum(IncomeExpTracker.amount).label("total")
+    ).filter(IncomeExpTracker.type == 'Expenses', IncomeExpTracker.user_id == session["user_id"]).group_by("month").all()
 
-    monthly_expenses = query.filter_by(type="Expenses") \
-        .with_entities(db.func.strftime('%Y-%m', IncomeExpTracker.created_at),
-                       db.func.sum(IncomeExpTracker.amount)) \
-        .group_by(1).all()
+    
+    monthly_income = db.session.query(
+        db.func.strftime('%Y-%m', IncomeExpTracker.created_at).label("month"),
+        db.func.sum(IncomeExpTracker.amount).label("total")
+    ).filter(IncomeExpTracker.type == 'Income', IncomeExpTracker.user_id == session["user_id"]).group_by("month").all()
 
-    return render_template("dashboard.html",
-        inc_total=inc_total,
-        data=data,
-        income_by_Category=income_by_category,
-        exp_by_Category=exp_by_category,
-        monthly_income=monthly_income,
-        monthly_expenses=monthly_expenses
-    )
+    return render_template('dashboard.html', title='Dashboard', 
+                           inc_total=inc_total, 
+                           data=data,
+                           income_by_Category=income_by_Category,
+                           exp_by_Category=exp_by_Category,
+                           monthly_expenses=monthly_expenses,
+                           monthly_income= monthly_income
+                           )
 
 
 # ---------------- LIST ----------------
@@ -68,7 +117,13 @@ def get_cashflow():
         query = query.filter_by(user_id=session["user_id"])
 
     entries = query.order_by(IncomeExpTracker.created_at.desc()).all()
-    return render_template("cashflow/index.html", entries=entries)
+    cash_cat = db.session.query(
+    IncomeExpTracker.type,
+    db.func.sum(IncomeExpTracker.amount).label("Amount")
+    ).filter(IncomeExpTracker.id == session["user_id"]).group_by(IncomeExpTracker.type).all()
+
+    data = {row[0]: float(row[1]) for row in cash_cat}
+    return render_template("cashflow/index.html", entries=entries, data=data, title='All entries')
 
 
 # ---------------- CREATE ----------------
@@ -218,6 +273,46 @@ def sign_up():
         return redirect(url_for("routes.sign_in"))
 
     return render_template("auth/sign-up.html", form=form)
+
+@routes_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            flash('No record with that email. Please, contact the admin or sign up', 'danger')
+            return redirect(url_for('routes.forgot_password'))
+        
+        flash('Please, reset your password', 'info')
+        session['email'] = user.email
+        return redirect(url_for('routes.reset_password'))
+    
+    return render_template('auth/forgot_password.html', form=form)
+
+@routes_bp.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        confirm_password = form.confirm_password.data
+        password = form.password.data
+
+        email = session.get('email')
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            flash('No record found, please, sign up', 'warning')
+            return redirect(url_for('routes.sign_up'))
+       
+        password_hash = generate_password_hash(password)
+        user.password = password_hash
+        db.session.commit()
+
+        flash('Password reset successfully, please, sign in', 'success')
+        return redirect(url_for('routes.sign_in'))
+
+    return render_template('auth/reset_password.html', form=form)
 
 
 @routes_bp.route('/logout')

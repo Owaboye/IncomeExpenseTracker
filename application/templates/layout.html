@@ -21,7 +21,7 @@
 <body class="bg-dark">
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container">
-    <a class="navbar-brand" href="{{url_for('dashboard')}}">CashFlowTracker</a>
+    <a class="navbar-brand" href="{{url_for('routes.dashboard')}}">CashFlowTracker</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -29,28 +29,28 @@
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         {% if session.get('authenticated') %}
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{{url_for('dashboard')}}">Dashboard</a>
+          <a class="nav-link active" aria-current="page" href="{{url_for('routes.dashboard')}}">Dashboard</a>
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Cashflow
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{url_for('get_cashflow')}}">View All</a></li>
-            <li><a class="dropdown-item" href="{{url_for('create_cashflow')}}">Add Entry</a></li>
+            <li><a class="dropdown-item" href="{{url_for('routes.get_cashflow')}}">View All</a></li>
+            <li><a class="dropdown-item" href="{{url_for('routes.create_cashflow')}}">Add Entry</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#">Something else here</a></li>
           </ul>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
+          <a class="nav-link active" aria-current="page" href="{{ url_for('routes.logout') }}">Logout</a>
         </li>
         {% else %}
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{{ url_for('sign_in') }}">Sign in</a>
+          <a class="nav-link active" aria-current="page" href="{{ url_for('routes.sign_in') }}">Sign in</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{{ url_for('sign_up') }}">Sign up</a>
+          <a class="nav-link active" aria-current="page" href="{{ url_for('routes.sign_up') }}">Sign up</a>
         </li>
         
         {% endif %}

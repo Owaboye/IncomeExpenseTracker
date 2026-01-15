@@ -35,7 +35,7 @@ def login_required(f):
     def decorator(*args, **kwargs):
         if 'user_id' not in session:
             flash('Please, login to continue', 'warning')
-            return redirect(url_for('sign_in'))
+            return redirect(url_for('routes.sign_in'))
         return f(*args, **kwargs)
     return decorator
 

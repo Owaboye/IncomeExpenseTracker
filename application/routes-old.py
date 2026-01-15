@@ -59,7 +59,7 @@ def dashboard():
 routes_bp.route('/get_cashflow')
 @login_required
 def get_cashflow():
-    entries = IncomeExpTracker.query.filter(IncomeExpTracker.id == session["user_id"]).order_by(IncomeExpTracker.created_at.desc()).all()
+    entries = IncomeExpTracker.query.filter(IncomeExpTracker.user_id == session["user_id"]).order_by(IncomeExpTracker.created_at.desc()).all()
     cash_cat = db.session.query(
     IncomeExpTracker.type,
     db.func.sum(IncomeExpTracker.amount).label("Amount")
