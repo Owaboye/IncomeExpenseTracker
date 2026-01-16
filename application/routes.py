@@ -120,7 +120,7 @@ def get_cashflow():
     cash_cat = db.session.query(
     IncomeExpTracker.type,
     db.func.sum(IncomeExpTracker.amount).label("Amount")
-    ).filter(IncomeExpTracker.id == session["user_id"]).group_by(IncomeExpTracker.type).all()
+    ).filter(IncomeExpTracker.user_id == session["user_id"]).group_by(IncomeExpTracker.type).all()
 
     data = {row[0]: float(row[1]) for row in cash_cat}
     return render_template("cashflow/index.html", entries=entries, data=data, title='All entries')
