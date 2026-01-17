@@ -1,86 +1,79 @@
 {% extends "layout.html" %}
 {% block title %} Add new cash flow {% endblock title %} 
 {% block content %}
-    <div class="container pt-5">
-        <div class="row mt-5">
-            <div class="col-md-6 mx-auto">
-                <div class="card mt-5">
-                    <div class="card-header">
-                        <h2>Sign up</h2>
-                         {% include "partials/flash-messages.html" %} 
-                    </div>
-                    <div class="card-body">
-                        <form method="POST" action="">
-                            {{ form.csrf_token }}
-                             
-                           <div class="row">
-                            
-                            <div class="form-group mb-3 col-md-6">
-                            
-                                {{ form.first_name.label(class="form-label") }} 
-                                {{ form.first_name(class="form-control") }}
-                                {% if form.first_name.errors %}
-                                    <p class="text-danger">
-                                    {% for error in form.first_name.errors %}
-                                       {{ error }}
-                                    {% endfor %}
-                                    </p>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="form-group mb-3 col-md-6">
-                            
-                                {{ form.last_name.label(class="form-label") }} 
-                                {{ form.last_name(class="form-control") }}
-                                {% if form.last_name.errors %}
-                                    <p class="text-danger">
-                                    {% for error in form.last_name.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                    </p>
-                                {% endif %}
-                            </div>
-                           </div>
+    <div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
 
-                           <div class="row">
-                            
-                            <div class="form-group mb-3 col-md-6">
-                            
-                                {{ form.password.label(class="form-label") }} 
-                                {{ form.password(class="form-control") }}
-                                {% if form.password.errors %}
-                                    <p class="text-danger">
-                                    {% for error in form.password.errors %}
-                                       {{ error }}
-                                    {% endfor %}
-                                    </p>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="form-group mb-3 col-md-6">
-                            
-                                {{ form.email.label(class="form-label") }} 
-                                {{ form.email(class="form-control") }}
-                                {% if form.email.errors %}
-                                    <p class="text-danger">
-                                    {% for error in form.email.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                    </p>
-                                {% endif %}
-                            </div>
-                           </div>
-                            
-                            <input class='btn btn-success' type="submit" value="Sign up">
-                        </form>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between mt-3">
-                        <p>Already have an account? <a href="{{ url_for('routes.sign_in') }}">Sign in</a></p>
-                    </div>
+            <div class="card shadow-lg border-0 rounded-4">
+                
+                <div class="card-header bg-white border-0 text-center pt-4">
+                    <h2 class="fw-bold text-primary">Create Your Account</h2>
+                    <p class="text-muted small mb-0">Start tracking your finances in minutes</p>
+                    {% include "partials/flash-messages.html" %}
                 </div>
+
+                <div class="card-body px-4 py-4">
+                    <form method="POST">
+                        {{ form.csrf_token }}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.first_name.label(class="form-label fw-semibold") }}
+                                {{ form.first_name(class="form-control form-control-lg") }}
+                                {% for error in form.first_name.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form.last_name.label(class="form-label fw-semibold") }}
+                                {{ form.last_name(class="form-control form-control-lg") }}
+                                {% for error in form.last_name.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label fw-semibold") }}
+                            {{ form.email(class="form-control form-control-lg") }}
+                            {% for error in form.email.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.password.label(class="form-label fw-semibold") }}
+                            {{ form.password(class="form-control form-control-lg") }}
+                            {% for error in form.password.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-lg rounded-pill">
+                                <i class="fas fa-user-plus me-1"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-white border-0 text-center pb-4">
+                    <p class="mb-0 small">
+                        Already have an account?
+                        <a href="{{ url_for('routes.sign_in') }}" class="fw-semibold text-decoration-none">
+                            Sign in
+                        </a>
+                    </p>
+                </div>
+
             </div>
+
         </div>
     </div>
+</div>
+
     <script>
     const expCat = document.getElementById('expCat');
     const incCat = document.getElementById('incCat');

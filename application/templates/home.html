@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block title %} Add new cash flow {% endblock title %} 
+{% block content %}
+<div class="container pt-5">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-9 col-lg-8 text-center">
+            <div class="card shadow-lg border-0 rounded-4 p-4">
+
+                <div class="card-body">
+                    <h1 class="fw-bold display-5 text-primary mb-3">
+                        Income & Expense Tracker
+                    </h1>
+
+                    <p class="lead text-muted">
+                        A modern and extensible financial tracking platform built with Flask and SQLAlchemy.
+                    </p>
+
+                    <p class="text-secondary">
+                        Easily record, categorize, and analyze your income and expenses with a clean relational
+                        database structure and interactive dashboards.
+                    </p>
+
+                    <p class="small text-muted">
+                        Perfect for learning full-stack backend development, ORM relationships, and financial reporting systems.
+                    </p>
+                    {% if not session.get('authenticated') %}
+                    <div class="mt-4">
+                        <a href="{{ url_for('routes.sign_up') }}" class="btn btn-primary btn-lg rounded-pill me-2">
+                            Get Started
+                        </a>
+                        <a href="{{ url_for('routes.sign_in') }}" class="btn btn-outline-secondary btn-lg rounded-pill">
+                            Sign In
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    <script>
+    const expCat = document.getElementById('expCat');
+    const incCat = document.getElementById('incCat');
+    const cashType = document.getElementById('cashType');
+
+    const expCatParent = expCat.parentElement;
+    const incCatParent = incCat.parentElement;
+
+    // helper function to update visibility
+    function updateCategoryVisibility() {
+        if (cashType.value === 'Income') {
+            incCatParent.classList.remove('hide');
+            expCatParent.classList.add('hide');
+        } else {
+            expCatParent.classList.remove('hide');
+            incCatParent.classList.add('hide');
+        }
+    }
+
+    // run once on page load
+    updateCategoryVisibility();
+
+    // run whenever type changes
+    cashType.addEventListener('change', updateCategoryVisibility);
+</script>
+
+
+{% endblock content %}

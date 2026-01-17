@@ -14,3 +14,5 @@ gunicorn
 psycopg2-binary
 email-validator
 flask-wtf
+flask-mail 
+itsdangerous

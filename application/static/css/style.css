@@ -115,7 +115,7 @@ main.container-fluid {
 
 /* Footer (Optional) */
 footer {
-    background-color: #0d6efd;
+    background-color: #021431;
     color: #fff;
     text-align: center;
     padding: 1rem;
@@ -130,4 +130,23 @@ footer {
 
 .show{
     display: block;
+}
+
+.icon-box{
+    font-size: 1.1rem;
+}
+
+.nav-item .btn:hover {
+    transform: translateY(-1px);
+    transition: 0.2s ease;
+}
+
+.card {
+    background: linear-gradient(180deg, #ffffff, #f9fbff);
+    transition: 0.3s ease;
+}
+
+
+.card:hover {
+    transform: translateY(-3px);
 }

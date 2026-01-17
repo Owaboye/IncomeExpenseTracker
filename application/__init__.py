@@ -2,6 +2,8 @@ from flask import Flask, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
 import os
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer
 
 # app = Flask(__name__)
 
@@ -21,6 +23,15 @@ def create_app():
 
     app.config['SESSION_COOKIE_SECURE'] = True
     app.config['SESSION_COOKIE_HTTPONLY'] = True
+
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USERNAME'] = 'smartcoder234@gmail.com'
+    app.config['MAIL_PASSWORD'] = 'Ezekiel!@#$1'
+    app.config['MAIL_DEFAULT_SENDER'] = 'CashFlow Tracker <smartcoder234@gmail.com>'
+
+    mail = Mail(app)
 
     db.init_app(app)
 
@@ -48,4 +59,6 @@ def role_required(role):
             return f(*args, **kwargs)
         return decorated
     return wrapper
+
+
 from application import routes

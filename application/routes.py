@@ -7,57 +7,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 routes_bp = Blueprint("routes", __name__, url_prefix='/')
 
 
+
+
+
+
 # ---------------- DASHBOARD ----------------
-# @routes_bp.route('/')
-# @login_required
-# def dashboard():
-
-#     user_id = session["user_id"]
-#     role = session["role"]
-
-#     query = IncomeExpTracker.query
-#     if role != "admin":
-#         query = query.filter_by(user_id=user_id)
-
-#     inc_total = query.filter_by(type="Income") \
-#                      .with_entities(db.func.sum(IncomeExpTracker.amount)) \
-#                      .scalar() or 0
-
-#     cash_cat = query.with_entities(
-#         IncomeExpTracker.type,
-#         db.func.sum(IncomeExpTracker.amount)
-#     ).group_by(IncomeExpTracker.type).all()
-
-#     data = {row[0]: float(row[1]) for row in cash_cat}
-
-#     income_by_category = query.filter_by(type="Income") \
-#         .with_entities(IncomeExpTracker.category, db.func.sum(IncomeExpTracker.amount)) \
-#         .group_by(IncomeExpTracker.category).all()
-
-#     exp_by_category = query.filter_by(type="Expenses") \
-#         .with_entities(IncomeExpTracker.category, db.func.sum(IncomeExpTracker.amount)) \
-#         .group_by(IncomeExpTracker.category).all()
-
-#     monthly_income = query.filter_by(type="Income") \
-#         .with_entities(db.func.strftime('%Y-%m', IncomeExpTracker.created_at).label('month'),
-#                        db.func.sum(IncomeExpTracker.amount)) \
-#         .group_by('month').all()
-
-#     monthly_expenses = query.filter_by(type="Expenses") \
-#         .with_entities(db.func.strftime('%Y-%m', IncomeExpTracker.created_at).label('month'),
-#                        db.func.sum(IncomeExpTracker.amount)) \
-#         .group_by('month').all()
-
-#     return render_template("dashboard.html",
-#         inc_total=inc_total,
-#         data=data,
-#         income_by_Category=income_by_category,
-#         exp_by_Category=exp_by_category,
-#         monthly_income=monthly_income,
-#         monthly_expenses=monthly_expenses
-#     )
-
 @routes_bp.route('/')
+def index():
+
+    return render_template("home.html")
+
+@routes_bp.route('/dashboard')
 @login_required
 def dashboard():
     
@@ -105,7 +65,6 @@ def dashboard():
                            monthly_expenses=monthly_expenses,
                            monthly_income= monthly_income
                            )
-
 
 # ---------------- LIST ----------------
 @routes_bp.route('/get_cashflow')
@@ -221,6 +180,12 @@ def monthly_expenses_items(month):
     total = sum(i.amount for i in items)
 
     return render_template("cashflow/monthly_expenses_items.html", items=items, month=month, total=total)
+
+# --- Export route ---
+@routes_bp.route('/cashflow/export/<filetype>')
+@login_required
+def export_cashflow(filetype):
+    entries = IncomeExpTracker.query.order_by(IncomeExpTracker.created_at.desc()).all()
 
 
 # ---------------- AUTH ----------------

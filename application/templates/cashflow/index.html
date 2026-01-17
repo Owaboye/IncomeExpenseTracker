@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block title %} Index {% endblock title %} 
 {% block content %}
+{#
     <div class="container py-5">
         <div class="row">
             <div class="col-md-12 mx-auto">
@@ -89,6 +90,103 @@
             </div>
         </div>
     </div>
+#}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            {% include 'partials/flash-messages.html' %}
+
+            <!-- Summary Cards -->
+            <div class="row g-4 mb-4">
+                {% set income = data['Income']|default(0, true) %}
+                {% set expenses = data['Expenses']|default(0, true) %}
+                {% set balance = income - expenses %}
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 text-center p-3">
+                        <h6 class="text-muted"><i class="bi bi-cash-stack"></i> Total Income</h6>
+                        <h4 class="text-success">&#8358;{{ "{:,.2f}".format(income) }}</h4>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 text-center p-3">
+                        <h6 class="text-muted"><i class="bi bi-credit-card"></i> Total Expenses</h6>
+                        <h4 class="text-danger">&#8358;{{ "{:,.2f}".format(expenses) }}</h4>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 text-center p-3">
+                        <h6 class="text-muted"><i class="bi bi-bank"></i> Balance</h6>
+                        <h4 class="text-primary">&#8358;{{ "{:,.2f}".format(balance) }}</h4>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Table & Actions -->
+            <div class="mt-5">
+                <div class="card">
+                    <div class="bg-dark d-flex justify-content-between align-items-center p-3">
+                        <h2 class="text-white">Records</h2>
+                        <div>
+                            <a class="btn btn-success btn-sm" href="{{ url_for('routes.export_cashflow', filetype='excel') }}">Export Excel</a>
+                            <a class="btn btn-warning btn-sm" href="{{ url_for('routes.export_cashflow', filetype='pdf') }}">Export PDF</a>
+                            <a class="btn btn-primary btn-sm" href="{{ url_for('routes.create_cashflow') }}">Add New Record</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            {% if entries %}
+                            <table class="table table-dark table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Date</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th>Description</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in entries %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ entry.created_at }}</td>
+                                        <td>{{ entry.user.role }}</td>
+                                        <td>{{ entry.type }}</td>
+                                        <td>{{ entry.category }}</td>
+                                        <td>&#8358;{{ "{:,.2f}".format(entry.amount) }}</td>
+                                        <td>{{ entry.description }}</td>
+                                        <td>
+                                            <a class="btn btn-info btn-sm" href="{{ url_for('routes.edit_cashflow', id=entry.id) }}">Edit</a>
+
+                                            <form method="POST" action="{{ url_for('routes.delete_cashflow', id=entry.id) }}" style="display:inline;">
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this record?')">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                                <p class="lead text-center">No records yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const ctx = document.getElementById('cashChart').getContext('2d');
