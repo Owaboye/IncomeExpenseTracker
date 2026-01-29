@@ -16,6 +16,7 @@ class IncomeExpForm(FlaskForm):
         validate_choice=True, 
         validators=[DataRequired()],
         choices=[
+                ('Fuel', 'Fuel'),
                 ('Rent', 'Rent'),
                 ('Air time', 'Air time'),
                 ('Data', 'Data'),
@@ -102,3 +103,15 @@ class ForgotPasswordForm(FlaskForm):
     email = StringField('Email', validators=[
                 DataRequired(message='Email is required')
                 ])
+
+class IncomeTypeForm(FlaskForm):
+    name = StringField(
+        'Income Title',
+        validators=[DataRequired()]
+    )
+
+class ExpenseTypeForm(FlaskForm):
+    name = StringField(
+        'Income Title',
+        validators=[DataRequired()]
+    )

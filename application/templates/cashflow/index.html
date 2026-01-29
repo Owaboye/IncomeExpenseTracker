@@ -102,7 +102,7 @@
                 {% set income = data['Income']|default(0, true) %}
                 {% set expenses = data['Expenses']|default(0, true) %}
                 {% set balance = income - expenses %}
-
+ {# 
                 <div class="col-md-4">
                     <div class="card shadow-sm border-0 text-center p-3">
                         <h6 class="text-muted"><i class="bi bi-cash-stack"></i> Total Income</h6>
@@ -126,7 +126,7 @@
             </div>
 
             <hr>
-
+#}
             <!-- Table & Actions -->
             <div class="mt-5">
                 <div class="card">
@@ -146,7 +146,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Date</th>
-                                        <th>Name</th>
+                                        
                                         <th>Type</th>
                                         <th>Category</th>
                                         <th>Amount</th>
@@ -158,8 +158,8 @@
                                     {% for entry in entries %}
                                     <tr>
                                         <td>{{ loop.index }}</td>
-                                        <td>{{ entry.created_at }}</td>
-                                        <td>{{ entry.user.role }}</td>
+                                        <td>{{ entry.created_at.strftime('%b %d, %Y') }}</td>
+                                       
                                         <td>{{ entry.type }}</td>
                                         <td>{{ entry.category }}</td>
                                         <td>&#8358;{{ "{:,.2f}".format(entry.amount) }}</td>

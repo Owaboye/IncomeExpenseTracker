@@ -31,6 +31,10 @@
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="{{url_for('routes.dashboard')}}"> <small class="icon-box"><i class="fa-solid fa-gauge"></i> Dashboard</small> </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{{url_for('routes.profile')}}"> <small class="icon-box"><i class="fa-solid fa-user"></i> Profile</small> </a>
+        </li>
+        
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <small class="icon-box"><i class="fa-solid fa-sack-dollar"></i> Cashflow</small>
@@ -39,7 +43,7 @@
             <li><a class="dropdown-item" href="{{url_for('routes.get_cashflow')}}">View All</a></li>
             <li><a class="dropdown-item" href="{{url_for('routes.create_cashflow')}}">Add Entry</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><a class="dropdown-item" href="{{url_for('income.index')}}"> <small class="icon-box"><i class="fa-solid fa-gauge"></i>Income</small></a></li>
           </ul>
         </li>
         <li class="nav-item">
@@ -84,7 +88,7 @@
         &copy; {{ current_year }} 
         <a href="#" class="text-primary text-decoration-none">CashFlow Tracker</a>
     </strong>
-    — Built with ❤️ using Flask & SQLAlchemy.
+    — Designed and Built by Smartcoder Digital Solution.
     </p>
     <div class="mt-2 small">
         <p>Track smarter • Spend wiser • Grow financially</p>

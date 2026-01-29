@@ -3,28 +3,63 @@
 
 {% block content %}
 <div class="container py-4">
-
+     {% set income = data['Income'] if data and data['Income'] else 0 %}
+        {% set current_week_income_summary = current_week_summary['Income'] if current_week_summary and current_week_summary['Income'] else 0 %}
+        {% set current_week_expenses_summary = current_week_summary['Expenses'] if current_week_summary and current_week_summary['Expenses'] else 0 %}
+        {% set expenses = data['Expenses'] if data and data['Expenses'] else 0 %}
+        {% set current_month_income_summary = current_month_summary['Income'] if current_month_summary and current_month_summary['Income'] else 0 %}
+        {% set current_month_expenses_summary = current_month_summary['Expenses'] if current_month_summary and current_month_summary['Expenses'] else 0 %}
+        {% set balance = income - expenses %}
+        
     <!-- Summary Cards -->
     <div class="row g-4 mb-4">
 
-        {% set income = data['Income'] if data and data['Income'] else 0 %}
-        {% set expenses = data['Expenses'] if data and data['Expenses'] else 0 %}
-        {% set balance = income - expenses %}
-        <div class="col-md-4">
+       
+         <div class="col-md-3 col-sm-6 mb-2">
+            <div class="card shadow-sm border-0 text-center p-3">
+                <h6 class="text-muted">Current Week Income</h6>
+                <h4 class="text-success">&#8358;{{ "{:,.2f}".format(current_week_income_summary) }}</h4>
+            </div>
+        </div>
+
+         <div class="col-md-3 col-sm-6 mb-2">
+            <div class="card shadow-sm border-0 text-center p-3">
+                <h6 class="text-muted">Current Week Expenses Summary</h6>
+                <h4 class="text-danger">&#8358;{{ "{:,.2f}".format(current_week_expenses_summary) }}</h4>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-2">
+            <div class="card shadow-sm border-0 text-center p-3">
+                <h6 class="text-muted">Current month Income</h6>
+                <h4 class="text-success">&#8358;{{ "{:,.2f}".format(current_month_income_summary) }}</h4>
+            </div>
+        </div>
+
+         <div class="col-md-3 col-sm-6 mb-2">
+            <div class="card shadow-sm border-0 text-center p-3">
+                <h6 class="text-muted">Current month Expenses</h6>
+                <h4 class="text-danger">&#8358;{{ "{:,.2f}".format(current_month_expenses_summary) }}</h4>
+            </div>
+        </div>
+
+
+        <div class="col">
             <div class="card shadow-sm border-0 text-center p-3">
                 <h6 class="text-muted">Total Income</h6>
                 <h4 class="text-success">&#8358;{{ "{:,.2f}".format(income) }}</h4>
             </div>
         </div>
 
-        <div class="col-md-4">
+
+        <div class="col">
             <div class="card shadow-sm border-0 text-center p-3">
                 <h6 class="text-muted">Total Expenses</h6>
                 <h4 class="text-danger">&#8358;{{ "{:,.2f}".format(expenses) }}</h4>
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col">
             <div class="card shadow-sm border-0 text-center p-3">
                 <h6 class="text-muted">Balance</h6>
                 <h4 class="text-primary">&#8358;{{ "{:,.2f}".format(balance) }}</h4>
@@ -47,7 +82,7 @@
 
        {# <div class="col-md-3">
             <div class="card shadow-sm border-0">
-                <div class="card-header fw-bold">Monthly Expenses</div>
+                <div class="card-header fw-bold text-success">Monthly Expenses</div>
                 <div class="card-body">
                     <canvas id="monthlyExpensesChart"></canvas>
                 </div>
@@ -58,7 +93,7 @@
         <!-- Monthly Expenses Table -->
         <div class="col-md-4">
             <div class="card shadow-sm border-0">
-                <div class="card-header fw-bold">Monthly Expenses Table</div>
+                <div class="card-header fw-bold text-danger">Monthly Expenses Table</div>
                 <div class="card-body">
                     <table class="table table-sm">
                         <thead>
@@ -89,7 +124,7 @@
         <!-- Monthly Income Table -->
         <div class="col-md-4">
             <div class="card shadow-sm border-0">
-                <div class="card-header fw-bold">Monthly Income Table</div>
+                <div class="card-header fw-bold text-success">Monthly Income Table</div>
                 <div class="card-body">
                     <table class="table table-sm">
                         <thead>

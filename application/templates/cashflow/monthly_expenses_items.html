@@ -29,7 +29,7 @@
                                         {% for item in items %}
                                         <tr>
                                         <th scope="row">{{ loop.index }}</th>
-                                        <th scope="row">{{ item.created_at }}</th>
+                                        <th scope="row">{{ item.created_at.strftime('%d %b, %Y') }}</th>
                                         <td>{{item.type}}</td>
                                         <td>{{item.category}}</td>
                                         <td>&#8358;{{"{:,.2f}".format(item.amount)}}</td>

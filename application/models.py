@@ -9,7 +9,8 @@ class User(db.Model):
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), default="admin")
     created_at = db.Column(db.DateTime, default=db.func.now())
-
+    is_active = db.Column(db.Boolean, default=False)
+    
     incexp = db.relationship('IncomeExpTracker', back_populates='user')
 
     def __repr__(self):
@@ -19,6 +20,7 @@ class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     avatar_url = db.Column(db.String(20))
+    bio = db.Column(db.Text)
 
     user = db.relationship('User', backref='profile')
 

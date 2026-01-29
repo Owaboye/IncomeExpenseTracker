@@ -1,8 +1,10 @@
 from application import db, create_app
 from itsdangerous import URLSafeTimedSerializer
+# from flask_migrate import Migrate
 
 
 app = create_app()
+# migrate = Migrate(app, db)
 
 def generate_token(email):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])

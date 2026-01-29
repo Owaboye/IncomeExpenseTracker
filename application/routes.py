@@ -1,20 +1,19 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, session, abort
-from application import db, login_required
+from flask import Blueprint, render_template, redirect, url_for, flash, session, abort, request, jsonify, current_app
+from application import db, login_required, allowed_file
 from application.forms import IncomeExpForm, SignUpForm, LoginForm, ForgotPasswordForm, ResetPasswordForm
 from application.models import IncomeExpTracker, User, Profile
 from werkzeug.security import generate_password_hash, check_password_hash
+from application.utils.tokens import generate_token
+from application.utils.email import send_mail
+from datetime import datetime, timedelta
+from werkzeug.utils import secure_filename
+import os
 
 routes_bp = Blueprint("routes", __name__, url_prefix='/')
-
-
-
-
-
 
 # ---------------- DASHBOARD ----------------
 @routes_bp.route('/')
 def index():
-
     return render_template("home.html")
 
 @routes_bp.route('/dashboard')
@@ -29,7 +28,7 @@ def dashboard():
     cash_cat = db.session.query(
     IncomeExpTracker.type,
     db.func.sum(IncomeExpTracker.amount).label("Amount")
-    ).filter(IncomeExpTracker.user_id == session["user_id"]).group_by(IncomeExpTracker.type).all()
+    ).filter(IncomeExpTracker.user_id == session["user_id"]).group_by(IncomeExpTracker.type).order_by(IncomeExpTracker.created_at.desc()).all()
 
     data = {row[0]: float(row[1]) for row in cash_cat}
 
@@ -57,14 +56,74 @@ def dashboard():
         db.func.sum(IncomeExpTracker.amount).label("total")
     ).filter(IncomeExpTracker.type == 'Income', IncomeExpTracker.user_id == session["user_id"]).group_by("month").all()
 
+    # Current Week Income and Expenses Summary
+    today = datetime.today()
+    start_of_week = today - timedelta(days=today.weekday()) #Monday
+    end_of_week = start_of_week + timedelta(days=6)
+    current_week_summary = db.session.query(
+        IncomeExpTracker.type,
+        db.func.sum(IncomeExpTracker.amount).label('total')
+    ).filter(
+        IncomeExpTracker.created_at >= start_of_week,
+        IncomeExpTracker.created_at <= end_of_week,
+        IncomeExpTracker.user_id == session["user_id"]
+        ).group_by(IncomeExpTracker.type).all()
+    
+    current_week_summary_data =  {rec[0]: rec[1] for rec in current_week_summary}
+
+    # Month Income and Expenses Summary
+    start_of_month = today.replace(day=1)
+    end_of_month = today.replace(day=1) + timedelta(days=31)
+    end_of_month = end_of_month.replace(day=1) - timedelta(days=1)
+
+    current_month_summary = db.session.query(
+        IncomeExpTracker.type,
+        db.func.sum(IncomeExpTracker.amount).label('total')
+    ).filter(
+        IncomeExpTracker.created_at >= start_of_month,
+        IncomeExpTracker.created_at <= end_of_month,
+        IncomeExpTracker.user_id == session["user_id"]
+        ).group_by(IncomeExpTracker.type).all()
+    
+    current_month_summary_data =  {rec[0]: rec[1] for rec in current_month_summary}
     return render_template('dashboard.html', title='Dashboard', 
                            inc_total=inc_total, 
                            data=data,
                            income_by_Category=income_by_Category,
                            exp_by_Category=exp_by_Category,
                            monthly_expenses=monthly_expenses,
-                           monthly_income= monthly_income
+                           monthly_income= monthly_income,
+                           current_week_summary = current_week_summary_data,
+                           current_month_summary =  current_month_summary_data
                            )
+
+@routes_bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    user = User.query.get(session.get('user_id'))
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return jsonify({'message': 'No file part'}), 400
+
+        file = request.files['file']
+
+        if file.filename == '':
+            return jsonify({'message': 'No selected file'}), 400
+
+        if file and allowed_file(file.filename):
+           filename = secure_filename(file.filename)
+           file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+
+           profile = Profile.query.filter_by(user_id=session.get('user_id')).first()
+           profile.avatar_url = filename
+           db.session.commit()
+
+           return jsonify({'message': f'Image {filename} {profile.user_id} uploaded successfully!'}), 200
+        else:
+           return jsonify({'message': 'Invalid file type'}), 400
+ 
+    return render_template('profile.html', title='User Profile', user=user)
+
 
 # ---------------- LIST ----------------
 @routes_bp.route('/get_cashflow')
@@ -76,13 +135,16 @@ def get_cashflow():
         query = query.filter_by(user_id=session["user_id"])
 
     entries = query.order_by(IncomeExpTracker.created_at.desc()).all()
+
+    new_entries = IncomeExpTracker.query.filter_by(user_id=session["user_id"]).order_by(IncomeExpTracker.created_at.desc()).all()
+
     cash_cat = db.session.query(
     IncomeExpTracker.type,
     db.func.sum(IncomeExpTracker.amount).label("Amount")
     ).filter(IncomeExpTracker.user_id == session["user_id"]).group_by(IncomeExpTracker.type).all()
 
     data = {row[0]: float(row[1]) for row in cash_cat}
-    return render_template("cashflow/index.html", entries=entries, data=data, title='All entries')
+    return render_template("cashflow/index.html", entries=new_entries, data=data, title='All entries')
 
 
 # ---------------- CREATE ----------------
@@ -106,7 +168,7 @@ def create_cashflow():
         db.session.commit()
 
         flash("Record added successfully", "success")
-        return redirect(url_for("routes.dashboard"))
+        return redirect(url_for("routes.create_cashflow"))
 
     return render_template("cashflow/create.html", form=form)
 
@@ -162,7 +224,7 @@ def monthly_income_items(month):
     if session["role"] != "admin":
         query = query.filter_by(user_id=session["user_id"])
 
-    items = query.filter(db.func.strftime('%Y-%m', IncomeExpTracker.created_at)==month).all()
+    items = query.filter(db.func.strftime('%Y-%m', IncomeExpTracker.created_at)==month).order_by(IncomeExpTracker.created_at.desc()).all()
     total = sum(i.amount for i in items)
 
     return render_template("cashflow/monthly_income_items.html", items=items, month=month, total=total)
@@ -176,7 +238,7 @@ def monthly_expenses_items(month):
     if session["role"] != "admin":
         query = query.filter_by(user_id=session["user_id"])
 
-    items = query.filter(db.func.strftime('%Y-%m', IncomeExpTracker.created_at)==month).all()
+    items = query.filter(db.func.strftime('%Y-%m', IncomeExpTracker.created_at)==month).order_by(IncomeExpTracker.created_at.desc()).all()
     total = sum(i.amount for i in items)
 
     return render_template("cashflow/monthly_expenses_items.html", items=items, month=month, total=total)

@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% block title %} Add new cash flow {% endblock title %} 
+{% block content %}
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card">
+                    {% include 'partials/flash-messages.html' %}
+                    <div class="bg-secondary d-flex justify-content-between align-items-center p-3">
+                        <h2>Add new Entry</h2>
+                        <small><a class='btn btn-primary btn-sm' href="{{url_for('routes.get_cashflow')}}">View All</a></small>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="">
+                            {{ form.csrf_token }}
+                             <div class="form-group mb-3 ">
+                            
+                                {{ form.name.label(class="form-label") }} 
+                                {{ form.name(class="form-control") }}
+                                {% if form.name.errors %}
+                                    <p class="text-danger">
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                           
+                            <input class='btn btn-primary' type="submit" value="Add Item">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mx-auto">
+                <div class="card">
+                    <div class="card-header">List</div>
+                    <div class="card-body">
+                        {% if items %}
+                        <div class="table-responsive">
+                           <table class="table table-dark table-bordered">
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">#</th>
+                                       
+                                        <th scope="col">Income Source Name</th>
+                                        
+                                        <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in items %}
+                                        <tr>
+                                        <th scope="row">{{ loop.index }}</th>
+                                        
+                                        <td>{{item.name}}</td>
+                                       
+                                        <td>
+                                            <a class="btn btn-info" href="{{url_for('routes.edit_cashflow', id=item.id)}}">Edit</a>
+                                            <a class="btn btn-danger" href="{{url_for('routes.delete_cashflow', id=item.id)}}">Delete</a>
+                                        </td>
+                                        </tr>
+                                        {% endfor %}
+                                        
+                                    </tbody>
+                                </table>
+                        </div>
+                        {% else %}
+                            <p>No record</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+</script>
+
+
+{% endblock content %}
